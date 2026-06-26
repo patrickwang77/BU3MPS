@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BU3 MPS 產銷計劃分析系統</title>
+    <meta name="description" content="BU3 MPS 產銷計劃大白板分析與上傳系統">
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            showErrorBanner("JS Error: " + message + " at " + (source ? source.split('/').pop() : 'unknown') + ":" + lineno);
+            return false;
+        };
+        window.onunhandledrejection = function(event) {
+            showErrorBanner("Unhandled Promise Rejection: " + event.reason);
+        };
+        function showErrorBanner(msg) {
+            let banner = document.getElementById("error-boundary-banner");
+            if (!banner) {
+                banner = document.createElement("div");
+                banner.id = "error-boundary-banner";
+                banner.style.position = "fixed";
+                banner.style.top = "0";
+                banner.style.left = "0";
+                banner.style.right = "0";
+                banner.style.background = "#ef4444";
+                banner.style.color = "#ffffff";
+                banner.style.padding = "10px 20px";
+                banner.style.zIndex = "99999";
+                banner.style.fontWeight = "bold";
+                banner.style.fontSize = "14px";
+                banner.style.display = "flex";
+                banner.style.justifyContent = "space-between";
+                banner.style.alignItems = "center";
+                banner.style.boxShadow = "0 2px 10px rgba(0,0,0,0.5)";
+                banner.style.fontFamily = "sans-serif";
+                
+                const textSpan = document.createElement("span");
+                textSpan.id = "error-boundary-text";
+                banner.appendChild(textSpan);
+                
+                const closeBtn = document.createElement("button");
+                closeBtn.textContent = "✕";
+                closeBtn.style.background = "none";
+                closeBtn.style.border = "none";
+                closeBtn.style.color = "#ffffff";
+                closeBtn.style.cursor = "pointer";
+                closeBtn.style.fontSize = "16px";
+                closeBtn.style.marginLeft = "20px";
+                closeBtn.onclick = function() { banner.remove(); };
+                banner.appendChild(closeBtn);
+                
+                document.body.appendChild(banner);
+            }
+            document.getElementById("error-boundary-text").textContent = msg;
+            console.error(msg);
+        }
+    </script>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <div class="logo-icon">M</div>
+            <div class="logo-text">
+                <h1>BU3 MPS 產銷計劃系統</h1>
+                <p>Monday-First Week Plan Analysis Dashboard</p>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab-btn active" data-target="summaryPanel" id="tabSummary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle;">
+                  <path d="M12.5 15a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5M10 8a.5.5 0 0 1-.5.5H3.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.707 7.5H9.5a.5.5 0 0 1 .5.5"/>
+                </svg>
+                產銷加總表
+            </button>
+            <button class="tab-btn" data-target="waterfallPanel" id="tabWaterfall">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle;">
+                  <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.707L8.854 9.854a.5.5 0 0 1-.708 0L5.5 7.207l-3.646 3.647a.5.5 0 1 1-.708-.708l4-4a.5.5 0 0 1 .708 0L8.5 8.793l4.646-4.647H10.5a.5.5 0 0 1-.5-.5Z"/>
+                </svg>
+                Waterfall
+            </button>
+            <button class="tab-btn" data-target="whiteboardPanel" id="tabWhiteboard">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle;">
+                  <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z"/>
+                </svg>
+                大白板明細
+            </button>
+            <button class="tab-btn" data-target="diffPanel" id="tabDiff">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle;">
+                  <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/>
+                  <path d="M4 7.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5"/>
+                </svg>
+                差異分析
+            </button>
+            <button class="tab-btn" data-target="aiPanel" id="tabAi">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle;">
+                  <path d="M6 12.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5M3 8.005c0-.007.001-.014.003-.021A4.5 4.5 0 0 1 7.5 3.5h1A4.5 4.5 0 0 1 13 8c0 .007.001.014.003.021A4.5 4.5 0 0 1 7.5 12.5h-1A4.5 4.5 0 0 1 3 8.005M7.5 4.5A3.5 3.5 0 0 0 4 8c0 .007.001.014.003.021A3.5 3.5 0 0 0 7.5 11.5h1A3.5 3.5 0 0 0 12 8c0-.007-.001-.014-.003-.021A3.5 3.5 0 0 0 8.5 4.5z"/>
+                </svg>
+                AI 顧問
+            </button>
+            <button class="tab-btn" data-target="uploadPanel" id="tabUpload">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle;">
+                  <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+                  <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z"/>
+                </svg>
+                資料上傳
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Global Stats Row (Shared across views) -->
+        <div class="metrics-grid" style="margin-bottom: 1.5rem;">
+            <div class="metric-card" style="padding: 1rem 1.5rem;">
+                <div class="metric-label">當前版本</div>
+                <div class="metric-value" id="statVersion" style="font-size: 1.5rem;">-</div>
+            </div>
+            <div class="metric-card" style="padding: 1rem 1.5rem;">
+                <div class="metric-label">總加總量 (不分PO/FCST)</div>
+                <div class="metric-value" id="statTotalQty" style="font-size: 1.5rem;">0</div>
+            </div>
+            <div class="metric-card accent-po" style="padding: 1rem 1.5rem;">
+                <div class="metric-label">PO 採購總量</div>
+                <div class="metric-value" id="statPOQty" style="font-size: 1.5rem;">0</div>
+            </div>
+            <div class="metric-card accent-fcst" style="padding: 1rem 1.5rem;">
+                <div class="metric-label">FCST 預估總量</div>
+                <div class="metric-value" id="statFCSTQty" style="font-size: 1.5rem;">0</div>
+            </div>
+        </div>
+
+        <!-- Tab 1: 產銷加總表 Panel -->
+        <section id="summaryPanel" class="view-panel active">
+            <!-- Summary Controls -->
+            <div class="controls-card">
+                <div class="controls-title">
+                    <span>產銷加總小計設定</span>
+                </div>
+                <div class="controls-grid">
+                    <div class="filter-group">
+                        <label class="filter-label" for="sumVersionSelect">產銷計劃版本</label>
+                        <select id="sumVersionSelect" class="version-select-sync">
+                            <option value="">載入中...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="sumSheetSelect">工作表</label>
+                        <select id="sumSheetSelect" class="sheet-select-sync">
+                            <option value="總表">總表</option>
+                            <option value="QSI TAA">QSI TAA</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label" for="sumGroupBy">加總維度 (Group By)</label>
+                        <select id="sumGroupBy">
+                            <option value="customer" selected>By Customer (按客戶)</option>
+                            <option value="projectCode">By Project Code (按專案)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">時間聚合層級</label>
+                        <div class="view-level-selector" id="sumViewLevelSelector">
+                            <button type="button" class="level-btn active" data-level="weekly">週</button>
+                            <button type="button" class="level-btn" data-level="monthly">月</button>
+                            <button type="button" class="level-btn" data-level="quarterly">季</button>
+                            <button type="button" class="level-btn" data-level="yearly">年</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label" for="sumStartPeriod">起始區間</label>
+                        <select id="sumStartPeriod">
+                            <!-- JS populated -->
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label" for="sumEndPeriod">結束區間</label>
+                        <select id="sumEndPeriod">
+                            <!-- JS populated -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Pivot Table Grid -->
+            <div class="table-card">
+                <div class="table-header-bar" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="table-header-title" id="summaryTableTitle">產銷加總統計表</div>
+                    <button type="button" class="upload-btn" id="exportSumExcelBtn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-top: 0; background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3); box-shadow: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 0.3rem;">
+                          <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+                          <path d="M4.5 12h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0 0 1zm0-2h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0 0 1zm0-2h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0 0 1z"/>
+                        </svg>
+                        下載為 Excel
+                    </button>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table id="summaryTable">
+                        <thead>
+                            <tr id="summaryHeaderRow">
+                                <th style="position: sticky; left: 0; z-index: 5; background-color: #161c2b;">加總維度</th>
+                                <!-- Time Columns -->
+                                <th class="total-column">小計</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summaryTableBody">
+                            <tr>
+                                <td colspan="2" style="text-align: center; padding: 2rem;">請載入資料...</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr id="summaryTotalsRow" class="totals-row">
+                                <!-- JS populated -->
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Trends Chart -->
+            <div class="chart-card">
+                <div class="table-header-title">產銷加總走勢圖 (PO vs FCST)</div>
+                <div class="chart-wrapper">
+                    <canvas id="trendsChartCanvas"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 1.5: Waterfall Panel -->
+        <section id="waterfallPanel" class="view-panel">
+            <!-- Waterfall Controls -->
+            <div class="controls-card">
+                <div class="controls-title">
+                    <span>跨版本 Waterfall 推移分析設定</span>
+                </div>
+                <div class="controls-grid">
+                    <div class="filter-group" style="grid-column: span 2;">
+                        <label class="filter-label">要分析的產銷版本 (至少選取一個，可新增多版本)</label>
+                        <div id="wfVersionsContainer" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 0.75rem;">
+                            <!-- JS populated with version rows -->
+                        </div>
+                        <button type="button" class="upload-btn" id="addWfVersionBtn" style="padding: 0.4rem 1rem; font-size: 0.8rem; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border-color: rgba(255, 255, 255, 0.1); box-shadow: none;">
+                            + 新增版本進行分析
+                        </button>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label" for="wfSheetSelect">工作表</label>
+                        <select id="wfSheetSelect">
+                            <option value="總表">總表</option>
+                            <option value="QSI TAA">QSI TAA</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">時間聚合層級</label>
+                        <div class="view-level-selector" id="wfViewLevelSelector">
+                            <button type="button" class="level-btn active" data-level="weekly">週</button>
+                            <button type="button" class="level-btn" data-level="monthly">月</button>
+                            <button type="button" class="level-btn" data-level="quarterly">季</button>
+                            <button type="button" class="level-btn" data-level="yearly">年</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label" for="filterWfCustomer">客戶 (Customer)</label>
+                        <select id="filterWfCustomer">
+                            <option value="ALL">ALL (全部)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label" for="filterWfProjectCode">專案代碼 (Project Code)</label>
+                        <select id="filterWfProjectCode">
+                            <option value="ALL">ALL (全部)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label" for="wfStartPeriod">起始區間</label>
+                        <select id="wfStartPeriod">
+                            <!-- JS populated -->
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label" for="wfEndPeriod">結束區間</label>
+                        <select id="wfEndPeriod">
+                            <!-- JS populated -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Waterfall Table Grid -->
+            <div class="table-card">
+                <div class="table-header-bar" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="table-header-title">Waterfall 跨版本需求推移分析表</div>
+                    <button type="button" class="upload-btn" id="exportWfExcelBtn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-top: 0; background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3); box-shadow: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 0.3rem;">
+                          <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+                          <path d="M4.5 12h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0 0 1zm0-2h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0 0 1zm0-2h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0 0 1z"/>
+                        </svg>
+                        下載為 Excel
+                    </button>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table id="waterfallTable">
+                        <thead>
+                            <tr id="wfHeaderRow">
+                                <th style="position: sticky; left: 0; z-index: 5; background-color: #161c2b; border-right: 2px solid var(--border-color);">產銷計劃版本</th>
+                                <!-- Time Columns -->
+                            </tr>
+                        </thead>
+                        <tbody id="wfTableBody">
+                            <tr>
+                                <td colspan="2" style="text-align: center; padding: 2rem;">請選取版本並篩選區間...</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr id="wfTotalsRow" class="totals-row">
+                                <!-- JS populated -->
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 2: 大白板明細 Panel -->
+        <section id="whiteboardPanel" class="view-panel">
+            <!-- Whiteboard Controls -->
+            <div class="controls-card">
+                <div class="controls-title">
+                    <span>大白板明細篩選與設定</span>
+                </div>
+                <div class="controls-grid">
+                    <div class="filter-group">
+                        <label class="filter-label" for="wbVersionSelect">產銷計劃版本</label>
+                        <select id="wbVersionSelect" class="version-select-sync">
+                            <option value="">載入中...</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="wbSheetSelect">工作表</label>
+                        <select id="wbSheetSelect" class="sheet-select-sync">
+                            <option value="總表">總表</option>
+                            <option value="QSI TAA">QSI TAA</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">時間聚合層級</label>
+                        <div class="view-level-selector" id="wbViewLevelSelector">
+                            <button type="button" class="level-btn active" data-level="weekly">週</button>
+                            <button type="button" class="level-btn" data-level="monthly">月</button>
+                            <button type="button" class="level-btn" data-level="quarterly">季</button>
+                            <button type="button" class="level-btn" data-level="yearly">年</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label" for="filterCustomer">客戶 (Customer)</label>
+                        <select id="filterCustomer">
+                            <option value="ALL">ALL (全部)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label" for="filterProjectCode">專案代碼 (Project Code)</label>
+                        <select id="filterProjectCode">
+                            <option value="ALL">ALL (全部)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label" for="filterSe">SE / PIC</label>
+                        <select id="filterSe">
+                            <option value="ALL">ALL (全部)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label" for="filterAttribute">料號屬性</label>
+                        <select id="filterAttribute">
+                            <option value="ALL">ALL (全部)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group" style="grid-column: span 2;">
+                        <label class="filter-label" for="searchInput">模糊搜尋 (PN, PCBA, Customer)</label>
+                        <input type="text" id="searchInput" placeholder="輸入關鍵字篩選明細...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail Pivot Table Grid -->
+            <div class="table-card">
+                <div class="table-header-bar">
+                    <div class="table-header-title">產銷明細排程矩陣大白板</div>
+                    <div class="toggle-switch-container">
+                        <label class="switch">
+                            <input type="checkbox" id="detailModeToggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="switch-label" id="detailToggleLabel">展開明細屬性 (PO/FCST)</span>
+                    </div>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table id="pivotTable">
+                        <thead>
+                            <tr id="tableHeaderRow">
+                                <th class="sticky-c1">料號屬性</th>
+                                <th class="sticky-c2">SE</th>
+                                <th class="sticky-c3">Project Code</th>
+                                <th class="sticky-c4">PN</th>
+                                <th class="sticky-c5">PCBA</th>
+                                <th class="sticky-c6">Customer</th>
+                                <th class="total-column">小計</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 2rem;">資料載入中...</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr id="totalsRow" class="totals-row">
+                                <!-- JS populated -->
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 3: 差異分析 Panel -->
+        <section id="diffPanel" class="view-panel">
+            <!-- Diff Controls -->
+            <div class="controls-card">
+                <div class="controls-title">
+                    <span>版本差異分析設定</span>
+                    <span style="font-size: 0.8rem; font-weight: 400; color: var(--text-secondary);">計算公式：基礎版本 - 比較版本（負數以紅色圓括號表示）</span>
+                </div>
+                <div class="controls-grid">
+                    <div class="filter-group" style="grid-column: span 2;">
+                        <label class="filter-label">版本比較選取 (基礎版本 - 比較版本)</label>
+                        <div style="display: flex; align-items: center; gap: 0.75rem; width: 100%;">
+                            <select id="diffBaseVersionSelect" style="flex: 1;">
+                                <option value="">載入中...</option>
+                            </select>
+                            <span style="font-weight: 700; color: var(--text-secondary); font-size: 1.2rem;">&minus;</span>
+                            <select id="diffCompVersionSelect" style="flex: 1;">
+                                <option value="">載入中...</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label" for="diffSheetSelect">工作表</label>
+                        <select id="diffSheetSelect">
+                            <option value="總表">總表</option>
+                            <option value="QSI TAA">QSI TAA</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label" for="diffGroupBy">比較維度 (Group By)</label>
+                        <select id="diffGroupBy">
+                            <option value="customer" selected>By Customer (按客戶)</option>
+                            <option value="projectCode">By Project Code (按專案)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">時間聚合層級</label>
+                        <div class="view-level-selector" id="diffViewLevelSelector">
+                            <button type="button" class="level-btn active" data-level="weekly">週</button>
+                            <button type="button" class="level-btn" data-level="monthly">月</button>
+                            <button type="button" class="level-btn" data-level="quarterly">季</button>
+                            <button type="button" class="level-btn" data-level="yearly">年</button>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label" for="diffStartPeriod">起始區間</label>
+                        <select id="diffStartPeriod">
+                            <!-- JS populated -->
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label" for="diffEndPeriod">結束區間</label>
+                        <select id="diffEndPeriod">
+                            <!-- JS populated -->
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label" for="diffTypeDisplay">PO / FCST 顯示</label>
+                        <select id="diffTypeDisplay">
+                            <option value="ALL" selected>全部 (PO + FCST)</option>
+                            <option value="PO">僅限 PO</option>
+                            <option value="FCST">僅限 FCST</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diff Table -->
+            <div class="table-card">
+                <div class="table-header-bar" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="table-header-title" id="diffTableTitle">版本差異比較表</div>
+                    <button type="button" class="upload-btn" id="exportDiffExcelBtn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; margin-top: 0; background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3); box-shadow: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 0.3rem;">
+                          <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+                          <path d="M4.5 12h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0 0 1zm0-2h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0 0 1zm0-2h7a.5.5 0 0 0 0-1h-7a.5.5 0 0 0 0 1z"/>
+                        </svg>
+                        下載為 Excel
+                    </button>
+                </div>
+                
+                <div class="table-wrapper">
+                    <table id="diffTable">
+                        <thead>
+                            <tr id="diffHeaderRow">
+                                <th style="position: sticky; left: 0; z-index: 5; background-color: #161c2b; border-right: 2px solid var(--border-color);">加總維度</th>
+                                <!-- Time Columns -->
+                                <th class="total-column">小計差異</th>
+                            </tr>
+                        </thead>
+                        <tbody id="diffTableBody">
+                            <tr>
+                                <td colspan="2" style="text-align: center; padding: 2rem;">請選取版本進行比較</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr id="diffTotalsRow" class="totals-row">
+                                <!-- JS populated -->
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 4: AI 顧問 Panel -->
+        <section id="aiPanel" class="view-panel">
+            <div class="controls-card" style="margin-bottom: 1.5rem;">
+                <div class="controls-title">
+                    <span>1) AI 服務金鑰與模型設定</span>
+                </div>
+                <div class="controls-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; align-items: end;">
+                    <div class="filter-group" style="margin-bottom: 0;">
+                        <label class="filter-label" for="aiApiKey">Gemini API Key</label>
+                        <input type="password" id="aiApiKey" placeholder="輸入您的 Google Gemini API Key (e.g. AIzaSy...)" style="width: 100%;">
+                    </div>
+                    
+                    <div class="filter-group" style="margin-bottom: 0;">
+                        <label class="filter-label" for="aiModelSelect">AI 模型選擇 (Model)</label>
+                        <select id="aiModelSelect" style="width: 100%;">
+                            <option value="gemini-2.5-flash" selected>gemini-2.5-flash (推薦/穩定)</option>
+                            <option value="gemini-3.5-flash">gemini-3.5-flash</option>
+                            <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite</option>
+                            <option value="gemini-3-flash-preview">gemini-3-flash-preview</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; gap: 0.5rem; width: 100%;">
+                        <button type="button" class="upload-btn" id="saveApiKeyBtn" style="flex: 1; padding: 0.6rem 1.2rem; font-size: 0.85rem; margin-top: 0; white-space: nowrap;">儲存設定</button>
+                        <button type="button" class="upload-btn" id="clearApiKeyBtn" style="padding: 0.6rem 1.2rem; font-size: 0.85rem; margin-top: 0; background: rgba(239, 68, 68, 0.15); color: #ef4444; border-color: rgba(239, 68, 68, 0.3); box-shadow: none;">清除</button>
+                    </div>
+                </div>
+                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem; display: flex; align-items: center; gap: 0.3rem;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" style="color: var(--accent-po);">
+                      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                      <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+                    </svg>
+                    安全性提示：API 金鑰將以安全加密方式<b>僅儲存在您個人的本機瀏覽器 (localStorage)</b>，絕不上傳至任何第三方或網路資料庫。
+                </p>
+            </div>
+
+            <div class="controls-card">
+                <div class="controls-title">
+                    <span>2) 產銷計劃版本選取與諮詢問題</span>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <label class="filter-label" style="margin-bottom: 0.5rem; display: block;">要分析的產銷版本 (至少選取一個，可新增多版本進行比較)</label>
+                    <div id="aiVersionsContainer" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 0.75rem;">
+                        <!-- JS populated with version rows -->
+                    </div>
+                    <button type="button" class="upload-btn" id="addAiVersionBtn" style="padding: 0.4rem 1rem; font-size: 0.8rem; background: rgba(255, 255, 255, 0.05); color: var(--text-primary); border-color: rgba(255, 255, 255, 0.1); box-shadow: none;">
+                        + 新增版本進行分析
+                    </button>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label class="filter-label" for="aiPrompt" style="margin-bottom: 0.5rem; display: block;">向 AI 顧問提問或輸入分析指示</label>
+                    <textarea id="aiPrompt" rows="4" style="width: 100%; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border-color); border-radius: 0.6rem; color: var(--text-primary); padding: 0.75rem; font-family: inherit; font-size: 0.9rem; outline: none; resize: vertical;" placeholder="例如：請幫我分析這幾個版本的客戶需求變化、有何異常波動、PO 與 FCST 占比，並提供採購備料與產能規律的顧問建議。"></textarea>
+                </div>
+
+                <button type="button" class="upload-btn" id="generateAiBtn" style="width: 100%; padding: 0.9rem; font-size: 1rem;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 0.5rem;">
+                      <path d="M12.854.15a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+                    </svg>
+                    發送給 AI 顧問分析
+                </button>
+            </div>
+
+            <!-- AI Output Window -->
+            <div class="console-card" style="max-width: none; margin-top: 1.5rem;">
+                <div class="console-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <span>AI 智慧產銷顧問報告</span>
+                        <span id="aiStatusLabel" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; background: rgba(255, 255, 255, 0.05); border-radius: 4px;">閒置中</span>
+                    </div>
+                    <div id="aiExportActions" style="display: none; gap: 0.5rem;">
+                        <button type="button" class="upload-btn" id="exportMdBtn" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; margin-top: 0; background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3); box-shadow: none;">匯出 Markdown (.md)</button>
+                        <button type="button" class="upload-btn" id="exportHtmlBtn" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; margin-top: 0; background: rgba(59, 130, 246, 0.15); color: #3b82f6; border-color: rgba(59, 130, 246, 0.3); box-shadow: none;">匯出 HTML (.html)</button>
+                    </div>
+                </div>
+                <div class="progress-bar-container" id="aiProgressBarContainer">
+                    <div class="progress-bar" id="aiProgressBar" style="width: 100%;"></div>
+                </div>
+                <div class="console-body" id="aiOutput" style="max-height: none; min-height: 250px; font-family: inherit; font-size: 0.92rem; line-height: 1.7; padding: 1.75rem; background: rgba(0, 0, 0, 0.2); overflow-y: visible; border-radius: 0.75rem;">
+                    <p style="color: var(--text-secondary); text-align: center; margin-top: 3rem;">尚未開始分析。請於上方設定 API 金鑰、選取分析版本並輸入提問指令，然後點擊「發送給 AI 顧問分析」按鈕。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 5: 資料上傳 Panel -->
+        <section id="uploadPanel" class="view-panel">
+            <div class="upload-card" id="uploadZone">
+                <div class="upload-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5z"/>
+                      <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/>
+                      <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708z"/>
+                    </svg>
+                </div>
+                <h2>拖曳產銷 Excel 檔案至此處</h2>
+                <p>或者點擊下方按鈕選擇本機檔案 (.xlsx 格式)</p>
+                <button type="button" class="upload-btn" onclick="document.getElementById('fileInput').click()">選擇檔案</button>
+                <input type="file" id="fileInput" accept=".xlsx">
+            </div>
+
+            <!-- Upload Console and Progress -->
+            <div class="console-card">
+                <div class="console-header">
+                    <span>上傳日誌與資料庫同步狀態</span>
+                    <span id="progressBarLabel">靜止</span>
+                </div>
+                <div class="progress-bar-container" id="progressBarContainer">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div class="console-body" id="consoleBody">
+                    <div class="log-entry info">[LOG] 準備就緒。請上傳大白板產銷排程 Excel。</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 BU3MPS Monday-First Week Plan Analysis Dashboard. All rights reserved.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="app.js"></script>
+</body>
+</html>
