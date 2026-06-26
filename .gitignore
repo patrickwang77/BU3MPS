@@ -1,0 +1,9 @@
+# Netlify
+.netlify/
+
+# Binary data sheets
+*.xlsx
+
+# System files
+.DS_Store
+Thumbs.db
