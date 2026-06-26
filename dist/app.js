@@ -1545,8 +1545,8 @@ ${dataSummaryText}
 
 // Client-side simple Markdown parser
 function parseMarkdownToHTML(md) {
-    // 1. Escape HTML tags first
-    let escaped = md.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    // 1. Escape only raw comparison brackets that do not form valid HTML tags
+    let escaped = md.replace(/<(?![a-zA-Z\/!])/g, "&lt;");
     
     // 2. Parse tables
     let lines = escaped.split('\n');
@@ -1585,8 +1585,8 @@ function parseMarkdownToHTML(md) {
     // Bold
     html = html.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
     
-    // Blockquotes (note: > is escaped to &gt; so we match &gt;)
-    html = html.replace(/^&gt;\s+(.*$)/gim, '<blockquote>$1</blockquote>');
+    // Blockquotes
+    html = html.replace(/^>\s+(.*$)/gim, '<blockquote>$1</blockquote>');
     
     // Inline code
     html = html.replace(/`(.*?)`/gim, '<code>$1</code>');
