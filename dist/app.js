@@ -775,7 +775,7 @@ function renderSummaryGrid() {
     const groupLabel = currentSumGroupBy === "customer" ? "客戶 (Customer)" : "專案 (Project Code)";
     summaryTableTitle.textContent = `產銷小計匯總表 - ${groupLabel}`;
     
-    let headerHtml = `<th onclick="toggleSummarySort(0)" style="position: sticky; left: 0; z-index: 5; background-color: #161c2b; border-right: 2px solid var(--border-color); cursor: pointer;">${groupLabel} <span class="sort-icon ${summarySortColumn === 0 ? 'active' : ''}">${getSortIconStr(0, summarySortColumn, summarySortDirection)}</span></th>`;
+    let headerHtml = `<th onclick="toggleSummarySort(0)" style="position: sticky; left: 0; z-index: 5; background-color: var(--sticky-header-bg); border-right: 2px solid var(--border-color); cursor: pointer;">${groupLabel} <span class="sort-icon ${summarySortColumn === 0 ? 'active' : ''}">${getSortIconStr(0, summarySortColumn, summarySortDirection)}</span></th>`;
     selectedPeriods.forEach(p => {
         headerHtml += `<th onclick="toggleSummarySort('${p}')" style="cursor: pointer;">${formatColumnHeaderLabel(p, sumViewLevel)} <span class="sort-icon ${summarySortColumn === p ? 'active' : ''}">${getSortIconStr(p, summarySortColumn, summarySortDirection)}</span></th>`;
     });
@@ -788,7 +788,7 @@ function renderSummaryGrid() {
     
     let bodyHtml = "";
     summaryRows.forEach(row => {
-        let rowHtml = `<tr class="data-row"><td style="position: sticky; left: 0; z-index: 4; background-color: #111624; font-weight: 500; border-right: 2px solid var(--border-color);">${row.groupKey}</td>`;
+        let rowHtml = `<tr class="data-row"><td style="position: sticky; left: 0; z-index: 4; background-color: var(--sticky-col-bg); font-weight: 500; border-right: 2px solid var(--border-color);">${row.groupKey}</td>`;
         let rowSum = 0;
         
         selectedPeriods.forEach(p => {
@@ -806,7 +806,7 @@ function renderSummaryGrid() {
     
     summaryTableBody.innerHTML = bodyHtml;
     
-    let totalsHtml = `<td style="position: sticky; left: 0; z-index: 4; background-color: #161d2b; font-weight: 600; border-right: 2px solid var(--border-color);">加總小計</td>`;
+    let totalsHtml = `<td style="position: sticky; left: 0; z-index: 4; background-color: var(--totals-sticky-bg); font-weight: 600; border-right: 2px solid var(--border-color);">加總小計</td>`;
     selectedPeriods.forEach(p => {
         const val = colTotals[p];
         totalsHtml += `<td class="data-cell">${val > 0 ? val.toLocaleString() : "-"}</td>`;
@@ -1280,7 +1280,7 @@ async function renderDiffGrid() {
         const groupLabel = diffGroupByDim === "customer" ? "客戶 (Customer)" : "專案 (Project Code)";
         diffTableTitle.textContent = `版本差異分析：${diffBaseVersion} - ${diffCompVersion} (工作表: ${diffSheet})`;
         
-        let headerHtml = `<th onclick="toggleDiffSort(0)" style="position: sticky; left: 0; z-index: 5; background-color: #161c2b; border-right: 2px solid var(--border-color); cursor: pointer;">${groupLabel} <span class="sort-icon ${diffSortColumn === 0 ? 'active' : ''}">${getSortIconStr(0, diffSortColumn, diffSortDirection)}</span></th>`;
+        let headerHtml = `<th onclick="toggleDiffSort(0)" style="position: sticky; left: 0; z-index: 5; background-color: var(--sticky-header-bg); border-right: 2px solid var(--border-color); cursor: pointer;">${groupLabel} <span class="sort-icon ${diffSortColumn === 0 ? 'active' : ''}">${getSortIconStr(0, diffSortColumn, diffSortDirection)}</span></th>`;
         selectedPeriods.forEach(p => {
             headerHtml += `<th onclick="toggleDiffSort('${p}')" style="cursor: pointer;">${formatColumnHeaderLabel(p, diffViewLevel)} <span class="sort-icon ${diffSortColumn === p ? 'active' : ''}">${getSortIconStr(p, diffSortColumn, diffSortDirection)}</span></th>`;
         });
@@ -1295,7 +1295,7 @@ async function renderDiffGrid() {
         // Render Body
         let bodyHtml = "";
         diffRows.forEach(row => {
-            let rowHtml = `<tr class="data-row"><td style="position: sticky; left: 0; z-index: 4; background-color: #111624; font-weight: 500; border-right: 2px solid var(--border-color);">${row.groupKey}</td>`;
+            let rowHtml = `<tr class="data-row"><td style="position: sticky; left: 0; z-index: 4; background-color: var(--sticky-col-bg); font-weight: 500; border-right: 2px solid var(--border-color);">${row.groupKey}</td>`;
             let rowDiffSum = 0;
             
             selectedPeriods.forEach(p => {
@@ -1317,7 +1317,7 @@ async function renderDiffGrid() {
         diffTableBody.innerHTML = bodyHtml;
         
         // Render Totals Row
-        let totalsHtml = `<td style="position: sticky; left: 0; z-index: 4; background-color: #161d2b; font-weight: 600; border-right: 2px solid var(--border-color);">加總小計差異</td>`;
+        let totalsHtml = `<td style="position: sticky; left: 0; z-index: 4; background-color: var(--totals-sticky-bg); font-weight: 600; border-right: 2px solid var(--border-color);">加總小計差異</td>`;
         selectedPeriods.forEach(p => {
             const val = colDiffTotals[p];
             totalsHtml += `<td class="data-cell">${formatDiffValueHTML(val)}</td>`;
@@ -2420,7 +2420,7 @@ function renderWaterfallGrid() {
     
     const selectedPeriods = wfPeriodsList.slice(startIdx, endIdx + 1);
     
-    let headerHtml = `<th style="position: sticky; left: 0; z-index: 5; background-color: #161c2b; border-right: 2px solid var(--border-color);">產銷計劃版本</th>`;
+    let headerHtml = `<th style="position: sticky; left: 0; z-index: 5; background-color: var(--sticky-header-bg); border-right: 2px solid var(--border-color);">產銷計劃版本</th>`;
     selectedPeriods.forEach(p => {
         headerHtml += `<th>${formatColumnHeaderLabel(p, wfViewLevel)}</th>`;
     });
@@ -2444,7 +2444,7 @@ function renderWaterfallGrid() {
             periodValues[pKey] = (periodValues[pKey] || 0) + rec.value;
         });
         
-        let rowHtml = `<tr class="data-row"><td style="position: sticky; left: 0; z-index: 4; background-color: #111624; font-weight: 500; border-right: 2px solid var(--border-color);">${ver}</td>`;
+        let rowHtml = `<tr class="data-row"><td style="position: sticky; left: 0; z-index: 4; background-color: var(--sticky-col-bg); font-weight: 500; border-right: 2px solid var(--border-color);">${ver}</td>`;
         
         selectedPeriods.forEach(p => {
             const val = periodValues[p] || 0;
