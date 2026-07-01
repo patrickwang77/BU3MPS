@@ -13,6 +13,44 @@
     --accent-gradient: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
     --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Theme Adaptable Backgrounds & Colors (Default: Dark) */
+    --header-bg: rgba(11, 15, 25, 0.7);
+    --table-header-bg: #121826;
+    --sticky-col-bg: #111624;
+    --sticky-header-bg: #161c2b;
+    --totals-row-bg: #141a27;
+    --totals-sticky-bg: #161d2b;
+    --modal-bg: #0f172a;
+    --modal-overlay-bg: rgba(6, 9, 19, 0.8);
+    --input-bg: rgba(255, 255, 255, 0.04);
+    --input-focus-bg: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] {
+    --bg-color: #f1f5f9; /* Slate 100 */
+    --card-bg: rgba(255, 255, 255, 0.7); /* Light card background */
+    --border-color: rgba(15, 23, 42, 0.08); /* Darker borders for contrast */
+    --text-primary: #0f172a; /* Slate 900 */
+    --text-secondary: #475569; /* Slate 600 */
+    --accent-po: #059669; /* Slightly darker Emerald 600 for contrast */
+    --accent-po-bg: rgba(5, 150, 105, 0.1);
+    --accent-fcst: #2563eb; /* Blue 600 */
+    --accent-fcst-bg: rgba(37, 99, 235, 0.1);
+    --accent-gradient: linear-gradient(135deg, #0891b2 0%, #2563eb 100%);
+    --card-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.06);
+    
+    /* Theme Adaptable Backgrounds & Colors (Light Mode) */
+    --header-bg: rgba(241, 245, 249, 0.85);
+    --table-header-bg: #e2e8f0; /* Slate 200 */
+    --sticky-col-bg: #f8fafc; /* Slate 50 */
+    --sticky-header-bg: #cbd5e1; /* Slate 300 */
+    --totals-row-bg: #e2e8f0; /* Slate 200 */
+    --totals-sticky-bg: #cbd5e1; /* Slate 300 */
+    --modal-bg: #ffffff;
+    --modal-overlay-bg: rgba(15, 23, 42, 0.45);
+    --input-bg: rgba(15, 23, 42, 0.03);
+    --input-focus-bg: rgba(15, 23, 42, 0.06);
 }
 
 * {
@@ -49,7 +87,7 @@ body {
 
 /* Glassmorphism Header */
 header {
-    background: rgba(11, 15, 25, 0.7);
+    background: var(--header-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border-color);
@@ -123,7 +161,7 @@ header {
 }
 
 .tab-btn.active {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--input-focus-bg);
     color: var(--text-primary);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
@@ -241,7 +279,7 @@ main {
 }
 
 select, input[type="text"] {
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--input-bg);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
     padding: 0.6rem 0.8rem;
@@ -254,12 +292,12 @@ select, input[type="text"] {
 }
 
 select:focus, input[type="text"]:focus {
-    border-color: rgba(255, 255, 255, 0.25);
-    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--text-secondary);
+    background: var(--input-focus-bg);
 }
 
 select option {
-    background-color: #121824;
+    background-color: var(--table-header-bg);
     color: var(--text-primary);
 }
 
@@ -406,7 +444,7 @@ th, td {
 thead th {
     position: sticky;
     top: 0;
-    background-color: #121826;
+    background-color: var(--table-header-bg);
     z-index: 10;
     font-weight: 600;
     color: var(--text-secondary);
@@ -414,20 +452,20 @@ thead th {
 }
 
 /* Sticky Row Headers (Columns A-F / 1-6) */
-.sticky-c1 { position: sticky; left: 0; z-index: 5; background-color: #111624; min-width: 60px; max-width: 60px; width: 60px; }
-.sticky-c2 { position: sticky; left: 60px; z-index: 5; background-color: #111624; min-width: 65px; max-width: 65px; width: 65px; }
-.sticky-c3 { position: sticky; left: 125px; z-index: 5; background-color: #111624; min-width: 90px; max-width: 90px; width: 90px; }
-.sticky-c4 { position: sticky; left: 215px; z-index: 5; background-color: #111624; min-width: 120px; max-width: 120px; width: 120px; }
-.sticky-c5 { position: sticky; left: 335px; z-index: 5; background-color: #111624; min-width: 150px; max-width: 150px; width: 150px; }
-.sticky-c6 { position: sticky; left: 485px; z-index: 5; background-color: #111624; min-width: 90px; max-width: 90px; width: 90px; border-right: 2px solid var(--border-color) !important; }
+.sticky-c1 { position: sticky; left: 0; z-index: 5; background-color: var(--sticky-col-bg); min-width: 60px; max-width: 60px; width: 60px; }
+.sticky-c2 { position: sticky; left: 60px; z-index: 5; background-color: var(--sticky-col-bg); min-width: 65px; max-width: 65px; width: 65px; }
+.sticky-c3 { position: sticky; left: 125px; z-index: 5; background-color: var(--sticky-col-bg); min-width: 90px; max-width: 90px; width: 90px; }
+.sticky-c4 { position: sticky; left: 215px; z-index: 5; background-color: var(--sticky-col-bg); min-width: 120px; max-width: 120px; width: 120px; }
+.sticky-c5 { position: sticky; left: 335px; z-index: 5; background-color: var(--sticky-col-bg); min-width: 150px; max-width: 150px; width: 150px; }
+.sticky-c6 { position: sticky; left: 485px; z-index: 5; background-color: var(--sticky-col-bg); min-width: 90px; max-width: 90px; width: 90px; border-right: 2px solid var(--border-color) !important; }
 
 /* In headers, sticky columns need higher z-index */
-thead th.sticky-c1 { z-index: 15; background-color: #161c2b; }
-thead th.sticky-c2 { z-index: 15; background-color: #161c2b; }
-thead th.sticky-c3 { z-index: 15; background-color: #161c2b; }
-thead th.sticky-c4 { z-index: 15; background-color: #161c2b; }
-thead th.sticky-c5 { z-index: 15; background-color: #161c2b; }
-thead th.sticky-c6 { z-index: 15; background-color: #161c2b; border-right: 2px solid var(--border-color) !important; }
+thead th.sticky-c1 { z-index: 15; background-color: var(--sticky-header-bg); }
+thead th.sticky-c2 { z-index: 15; background-color: var(--sticky-header-bg); }
+thead th.sticky-c3 { z-index: 15; background-color: var(--sticky-header-bg); }
+thead th.sticky-c4 { z-index: 15; background-color: var(--sticky-header-bg); }
+thead th.sticky-c5 { z-index: 15; background-color: var(--sticky-header-bg); }
+thead th.sticky-c6 { z-index: 15; background-color: var(--sticky-header-bg); border-right: 2px solid var(--border-color) !important; }
 
 /* Totals column on right side */
 .total-column {
@@ -439,7 +477,7 @@ thead th.sticky-c6 { z-index: 15; background-color: #161c2b; border-right: 2px s
 
 /* Totals row at bottom */
 .totals-row td {
-    background-color: #141a27;
+    background-color: var(--totals-row-bg);
     font-weight: 600;
     border-top: 2px solid var(--border-color);
     position: sticky;
@@ -454,7 +492,7 @@ thead th.sticky-c6 { z-index: 15; background-color: #161c2b; border-right: 2px s
 .totals-row td.sticky-c5,
 .totals-row td.sticky-c6 {
     z-index: 9;
-    background-color: #161d2b;
+    background-color: var(--totals-sticky-bg);
 }
 
 /* Data cells formatting */
@@ -680,7 +718,7 @@ footer {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(6, 9, 19, 0.8);
+    background: var(--modal-overlay-bg);
     backdrop-filter: blur(8px);
     z-index: 1000;
     display: flex;
@@ -690,7 +728,7 @@ footer {
 }
 
 .modal-content {
-    background: #0f172a;
+    background: var(--modal-bg);
     border: 1px solid var(--border-color);
     border-radius: 1.25rem;
     padding: 2rem;
@@ -950,6 +988,31 @@ thead th:hover .sort-icon {
     font-size: 0.98rem;
     font-weight: 600;
     color: var(--text-primary);
+}
+
+/* Theme Toggle Button */
+.theme-btn {
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-primary);
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-smooth);
+    box-shadow: var(--card-shadow);
+}
+.theme-btn:hover {
+    background: var(--input-focus-bg);
+    transform: scale(1.05);
+}
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 
