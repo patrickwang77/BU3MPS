@@ -25,6 +25,11 @@
     --modal-overlay-bg: rgba(6, 9, 19, 0.8);
     --input-bg: rgba(255, 255, 255, 0.04);
     --input-focus-bg: rgba(255, 255, 255, 0.08);
+    
+    /* Scrollbars (Dark) */
+    --scrollbar-track: rgba(255, 255, 255, 0.02);
+    --scrollbar-thumb: rgba(255, 255, 255, 0.12);
+    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.25);
 }
 
 [data-theme="light"] {
@@ -51,6 +56,11 @@
     --modal-overlay-bg: rgba(15, 23, 42, 0.45);
     --input-bg: rgba(15, 23, 42, 0.03);
     --input-focus-bg: rgba(15, 23, 42, 0.06);
+    
+    /* Scrollbars (Light) */
+    --scrollbar-track: rgba(15, 23, 42, 0.02);
+    --scrollbar-thumb: rgba(15, 23, 42, 0.15);
+    --scrollbar-thumb-hover: rgba(15, 23, 42, 0.3);
 }
 
 * {
@@ -75,14 +85,14 @@ body {
     height: 8px;
 }
 ::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--scrollbar-track);
 }
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--scrollbar-thumb);
     border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--scrollbar-thumb-hover);
 }
 
 /* Glassmorphism Header */
